@@ -11,14 +11,6 @@ import java.util.Scanner;
 		
 public class Primaria {
 	
-//	static int tamanho = 4;
-//	static String[] nome = new String[tamanho];
-//	static double[] salario = new double[tamanho];
-//	static String[] cpf = new String[tamanho];
-//	static LocalTime[] hrEntrada = new LocalTime[tamanho];
-//	static LocalTime[] hrSaida = new LocalTime[tamanho];
-	 
-	
  	public static void main(String[] args) {
  		menu();
  	}
