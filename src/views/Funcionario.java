@@ -14,51 +14,39 @@ public class Funcionario {
 	public int getCodigo() {
 		return codigo;
 	}
-
 	public void setCodigo(int codigo) {
 		this.codigo = codigo;
 	}
-
 	public String getNome() {
 		return nome;
 	}
-
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
 	public String getCpf() {
 		return cpf;
 	}
-
 	public void setCpf(String cpf) {
 		this.cpf = cpf;
 	}
-
 	public double getSalario() {
 		return salario;
 	}
-
 	public void setSalario(double salario) {
 		this.salario = salario;
 	}
-
 	public LocalTime getHrEntrada() {
 		return hrEntrada;
 	}
-
 	public void setHrEntrada(LocalTime horae) {
 		this.hrEntrada = horae;
 	}
-
 	public LocalTime getHrSaida() {
 		return hrSaida;
 	}
-
 	public void setHrSaida(LocalTime horas) {
 		this.hrSaida = horas;
 	}
-
 	public Funcionario(String nome,String cpf, double salario) {
 		cd++;
 		this.codigo=cd;
@@ -73,8 +61,6 @@ public class Funcionario {
 	public String toString() {
 		return "Funcionario codigo: " + codigo + "\nnome: " + nome + "\ncpf:" + cpf + "\nsalario: " + salario
 				+ "\nhrEntrada: " + hrEntrada + "\nhrSaida: " + hrSaida  ;
-	}
-
-	
+	}	
 }
 

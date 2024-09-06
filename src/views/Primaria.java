@@ -7,12 +7,8 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-
-		
-		
-public class Primaria {
-	
+			
+public class Primaria {	
  	public static void main(String[] args) {
  		menu();
  	}
@@ -223,8 +219,8 @@ public class Primaria {
 		System.out.println("Lista de Funcionários:");
 		    boolean encontrado = false;
 		    for (Funcionario f : funcionarios) {
-		        if (f != null) {
-		        	System.err.println("*******************");
+		        System.err.println("*******************");
+		    	if (f != null) {	        	
 		            System.out.println(f);		            
 		            encontrado = true;		            
 		        }
