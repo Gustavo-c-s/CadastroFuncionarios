@@ -69,6 +69,12 @@ public class Funcionario {
 		this.hrSaida=null;
 	}
 
+	@Override
+	public String toString() {
+		return "Funcionario codigo: " + codigo + "\nnome: " + nome + "\ncpf:" + cpf + "\nsalario: " + salario
+				+ "\nhrEntrada: " + hrEntrada + "\nhrSaida: " + hrSaida  ;
+	}
+
 	
 }
 

@@ -1,50 +1,44 @@
 package views;
 import java.util.Date;
-import java.util.Scanner;
+import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Locale;
+
+
 		
 		
 public class Primaria {
-	
-//	static int tamanho = 4;
-//	static String[] nome = new String[tamanho];
-//	static double[] salario = new double[tamanho];
-//	static String[] cpf = new String[tamanho];
-//	static LocalTime[] hrEntrada = new LocalTime[tamanho];
-//	static LocalTime[] hrSaida = new LocalTime[tamanho];
-	 
 	
  	public static void main(String[] args) {
  		menu();
  	}
  	public static void menu() {
+ 		Date relogio = new Date();
+ 		SimpleDateFormat formatoData = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("pt", "BR"));
  		List<Funcionario> funcionarios = new ArrayList<Funcionario>();
-		Scanner scanner = new Scanner(System.in);
 		String opcao="";
-		Date relogio = new Date();
+		String dataFor = formatoData.format(relogio);
 		
 		while(opcao != "6") {
-			System.err.println(relogio);
+			System.err.println(dataFor);
 			 System.out.println("""
-					**************************
-					     Bem Vindo ao DpPs
-					1 - Cadastra Funcionario.
-					2 - Editar Funcionaro.
-					3 - Registra Ponto.
-					4 - Folha de Pagamento.
-					5 - Lista de Funcionaio.
-					6 - Sair
-					
-					**************************
+					***************************
+					|     Bem Vindo ao DpPs   |
+					|                         |
+					|1 - Cadastra Funcionario.|
+					|2 - Editar Funcionaro.   |
+					|3 - Registra Ponto.      |
+					|4 - Folha de Pagamento.  |
+					|5 - Lista de Funcionaio. |
+					|6 - Sair                 |
+					|                         |
+					***************************
 					""");
-			 System.out.println("Escolha uma opção: ");
-			 opcao = scanner.nextLine();
-			
+			 opcao = Ler.lerString("Escolha uma opção: ");			
 			 switch (opcao) {
 				 case "1":
 					 cadastraFuncionario(funcionarios);
@@ -63,94 +57,75 @@ public class Primaria {
 					 break;
 				 case "6":
 				 System.out.println("ENCERRANDO O PROGRAMA...");
-				     scanner.nextLine();
 					 return;
 				 default:
 				     System.out.println("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
-				     scanner.nextLine();
 			 }		
 		}  
 	}
 	public static void cadastraFuncionario(List<Funcionario>funcionarios){
-		int res; 
-		Scanner scanner = new Scanner(System.in);
+		String res; 
 		
 		do {
-			String nome;
-			System.out.println("Digete o nome do funcionario: ");
-			nome =scanner.nextLine();
+			String nome=Ler.lerString("Digete o nome do funcionario: ");
+						
+			String cpf=Ler.lerString("Digete o CPF do funcionario: ");
 			
-			String cpf;
-			System.out.println("Digete o CPF do funcionario: ");
-			cpf  =scanner.nextLine();
-			
-			double salario;
-			System.out.println("Digete o salario do funcionario: ");
-			salario =scanner.nextDouble();
-			
-			scanner.nextLine();
+			double salario = Ler.lerDouble("Digete o salario do funcionario: ");
+
 			Funcionario novoFuncionario = new Funcionario(nome,cpf,salario);
 			funcionarios.add(novoFuncionario);
-			
-			System.out.println("Deseja continuar cadastrando? 1 - sim / 2 - retonar");
-			res = scanner.nextInt();
-			scanner.nextLine();
-			if (res == 2 ) {
-				return;
-			}else if (res != 1){
-				System.out.println("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
-				
-			}		
-		}while(res == 1);	
+			while(true) {
+				res = Ler.lerString("Deseja continuar cadastrando? 1 - sim / 2 - retonar");
+				if (res.equals("2")) {
+					return;
+				}else if (res.equals("1")){
+					break;
+				}else {
+					System.out.println("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
+				}
+			}
+		}while(res.equals("1"));	
 	}	
 	public static void editarFuncionario(List<Funcionario>funcionarios) {
-		Scanner scanner = new Scanner(System.in);
-		String cpf;
-		int res,opcao1 = 1;
+		String cpf,opcao1="";
+		int res;
 		
-		System.out.println("Digite o CPF do funcionaro para editar");
-		cpf = scanner.nextLine();
-		Funcionario funcionario = procuraCpf(cpf,funcionarios);
-		
+		do {
+			cpf = Ler.lerString("Digite o CPF do funcionaro para editar");
+			Funcionario funcionario = procuraCpf(cpf,funcionarios);
+			
 			if(funcionario.getCpf().equals(cpf)) {
 				
 				System.out.println("Informações do funcionario:\nNome: "+funcionario.getNome()+"\nCPF: "+funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());		
-				System.out.println("\nOque deseja editar:\n[1] Nome [2] CPF [3] Salario");
-				res = scanner.nextInt();
-				scanner.nextLine();
+				System.out.println();
+				res = Ler.lerInt("\nOque deseja editar:\n[1] Nome [2] CPF [3] Salario");
 				if (res == 1) {
-					String nome;
-					System.out.println("Digite o novo nome:");
-					nome = scanner.nextLine();
+					String nome = Ler.lerString("Digite o novo nome:");
 					funcionario.setNome(nome);
 					System.out.println("Funcionario editado com sucesso!!\n\nfuncionario:\nNome: "+funcionario.getNome()+"\nCPF: "+ funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());
 				}else if(res == 2) {
-					String cpfn;
-					System.out.println("Digite o novo CPF:");
-					cpfn = scanner.nextLine();
+					String cpfn = Ler.lerString("Digite o novo CPF:");
 					funcionario.setCpf(cpfn);
 					System.out.println("Funcionario editado com sucesso!!\n\nfuncionario:\nNome: "+funcionario.getNome()+"\nCPF: "+ funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());
 				}else if(res == 3) {
-					double salario;
-					System.out.println("Digite o novo Salario:");
-					salario = scanner.nextDouble();
+					double salario = Ler.lerDouble("Digite o novo Salario:");
 					funcionario.setSalario(salario);
 					System.out.println("Funcionario editado com sucesso!!\n\nfuncionario:\nNome: "+funcionario.getNome()+"\nCPF: "+ funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());
 				}
-				System.out.println("Deseja edita outro funcionario? 1 - sim / 2 - retonar");
-				opcao1 = scanner.nextInt();
-				scanner.nextLine();
-				if (opcao1 == 2 ) {
-					return;
-				}else if (opcao1 != 1){
-					System.out.println("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
-					;
-				}else if(opcao1 ==1) {
-					editarFuncionario(funcionarios);
+				while(true) {				
+					opcao1 = Ler.lerString("Deseja edita outro funcionario? 1 - sim / 2 - retonar");					
+					if (opcao1.equals("2") ) {
+						return;
+					}else if (opcao1.equals("1")){
+						break;
+					}else {
+						System.out.println("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
+					}
 				}
-				
 			}
-		}	
+		}while(opcao1.equals("1"));
+	}	
 	public static Funcionario procuraCpf(String cpf, List<Funcionario > funcionarios) {
 		for(Funcionario f : funcionarios){
 			if(f.getCpf().equals(cpf)) {
@@ -159,42 +134,30 @@ public class Primaria {
 		}
 		return null;
 	}	
-	public static void registraPonto(List<Funcionario>funcionarios) {
-		 Scanner input = new Scanner(System.in);
-	     DateTimeFormatter hora = DateTimeFormatter.ofPattern("HH:mm"); // FORMATO DE HORA: "HH:mm" 
-	     String cpfhr;
-	     int res =0 ;
-		
-		
+	public static void registraPonto(List<Funcionario>funcionarios) {		 
+		DateTimeFormatter hora = DateTimeFormatter.ofPattern("HH:mm"); 
+		String cpfhr;
+		int res =0 ;		
 		
 		do {
             try {
-            	System.out.println("Digite o CPF do funcionaro: ");
-            	cpfhr = input.nextLine();
-            	Funcionario funcionario = procuraCpf(cpfhr,funcionarios);
-		
+            	cpfhr = Ler.lerString("Digite o CPF do funcionaro: ");
+            	Funcionario funcionario = procuraCpf(cpfhr,funcionarios);		
             	if(funcionario.getCpf().equals(cpfhr)) {
-            		System.out.println("Digite a hora de entrada no formato HH:mm");
-	                String hrE =input.nextLine();        
-	                System.out.println("Digite a hora de saida no formato HH:mm");
-	                String hrS =input.nextLine();        
-    				// CONVERTER STRING PARA LocalTime
+	                String hrE =Ler.lerString("Digite a hora de entrada no formato HH:mm");        
+	                String hrS =Ler.lerString("Digite a hora de saida no formato HH:mm");           				
 	                LocalTime horae = LocalTime.parse(hrE, hora);
-	                LocalTime horas = LocalTime.parse(hrS, hora);
-	                
+	                LocalTime horas = LocalTime.parse(hrS, hora);	                
 	                funcionario.setHrEntrada(horae);
 	                funcionario.setHrSaida(horas);
 	                System.out.println("Horário entrada: " + horae);
 	                System.out.println("Horário saida: " + horas);
-	                System.out.println("Deseja registra outro ponto?  1 - sim / 2 - retonar");
 	            	
-	    			res = input.nextInt();
-	    			input.nextLine();
+	    			res = Ler.lerInt("Deseja registra outro ponto?  1 - sim / 2 - retonar");
 	    			if (res == 2 ) {
 	    				return;
 	    			}else if (res != 1){
-	    				System.out.println("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
-	    				
+	    				System.out.println("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");	    				
 	    			}	
             	}
             }catch (DateTimeParseException e) {
@@ -223,8 +186,7 @@ public class Primaria {
 				totalFolhaPagamento += salarioLiquido;
 				funcionarioCadastrados = true;
 			}
-		}
-		
+		}		
 		if(!funcionarioCadastrados) {
 			System.out.println("Nenhum funcionario cadastrado.");
 		}else {
@@ -257,20 +219,16 @@ public class Primaria {
 			return salarioAposINSS * 0.275-869.36;
 		}
 	}	
-	public static void listaFuncionario(List<Funcionario>funcionarios) {
-		Scanner scanner = new Scanner(System.in);
+	public static void listaFuncionario(List<Funcionario>funcionarios) {		
 		System.out.println("Lista de Funcionários:");
 		    boolean encontrado = false;
 		    for (Funcionario f : funcionarios) {
 		        if (f != null) {
 		        	System.err.println("*******************");
-		            System.out.println("Madricula: "+ f.getCodigo()+"\nNome: " + f.getNome() + "\nCPF: " + f.getCpf() + "\nSalário: " + f.getSalario());
-		            
-		            encontrado = true;
-		            
+		            System.out.println(f);		            
+		            encontrado = true;		            
 		        }
-		    }scanner.nextLine();
-
+		    }
 		    if (!encontrado) {
 		        System.out.println("Nenhum funcionário cadastrado.");
 		    }
