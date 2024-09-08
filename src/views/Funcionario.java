@@ -11,6 +11,16 @@ public class Funcionario {
 	private LocalTime hrSaida;
 	private static int cd;
 	
+	
+	public Funcionario(int codigo, String nome, String cpf, double salario, LocalTime hrEntrada, LocalTime hrSaida) {
+		
+		this.codigo = codigo;
+		this.nome = nome;
+		this.cpf = cpf;
+		this.salario = salario;
+		this.hrEntrada = hrEntrada;
+		this.hrSaida = hrSaida;
+	}
 	public int getCodigo() {
 		return codigo;
 	}

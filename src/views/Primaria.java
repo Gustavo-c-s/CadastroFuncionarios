@@ -1,5 +1,6 @@
 package views;
 import java.util.Date;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +19,7 @@ public class Primaria {
  		List<Funcionario> funcionarios = new ArrayList<Funcionario>();
 		String opcao="";
 		String dataFor = formatoData.format(relogio);
-		
+		ConexaoBanco con = new ConexaoBanco();
 		while(opcao != "6") {
 			System.err.println(dataFor);
 			 System.out.println("""
@@ -37,10 +38,10 @@ public class Primaria {
 			 opcao = Ler.lerString("Escolha uma opção: ");			
 			 switch (opcao) {
 				 case "1":
-					 cadastraFuncionario(funcionarios);
+					 cadastraFuncionario(funcionarios,con);
 					 break;
 				 case "2":
-					 editarFuncionario(funcionarios);
+					 editarFuncionario(funcionarios,con);
 					 break;
 				 case "3" :
 					 registraPonto(funcionarios);
@@ -49,7 +50,7 @@ public class Primaria {
 					 folhaPagamento(funcionarios);
 					 break;
 				 case "5":
-					 listaFuncionario(funcionarios);
+					 listaFuncionario(funcionarios,con);
 					 break;
 				 case "6":
 				 System.out.println("ENCERRANDO O PROGRAMA...");
@@ -59,9 +60,9 @@ public class Primaria {
 			 }		
 		}  
 	}
-	public static void cadastraFuncionario(List<Funcionario>funcionarios){
+	public static void cadastraFuncionario(List<Funcionario>funcionarios,ConexaoBanco con){
 		String res; 
-		
+		con.verificaOuCriaTabela("funcionario");
 		do {
 			String nome=Ler.lerString("Digete o nome do funcionario: ");
 						
@@ -70,7 +71,9 @@ public class Primaria {
 			double salario = Ler.lerDouble("Digete o salario do funcionario: ");
 
 			Funcionario novoFuncionario = new Funcionario(nome,cpf,salario);
+			
 			funcionarios.add(novoFuncionario);
+			con.insertDados(novoFuncionario);
 			while(true) {
 				res = Ler.lerString("Deseja continuar cadastrando? 1 - sim / 2 - retonar");
 				if (res.equals("2")) {
@@ -83,31 +86,33 @@ public class Primaria {
 			}
 		}while(res.equals("1"));	
 	}	
-	public static void editarFuncionario(List<Funcionario>funcionarios) {
+	public static void editarFuncionario(List<Funcionario>funcionarios,ConexaoBanco con) {
 		String cpf,opcao1="";
-		int res;
+		String res;
 		
 		do {
-			cpf = Ler.lerString("Digite o CPF do funcionaro para editar");
-			Funcionario funcionario = procuraCpf(cpf,funcionarios);
+			cpf = Ler.lerString("Digite o CPF do funcionario: ");
 			
-			if(funcionario.getCpf().equals(cpf)) {
+			if(con.verificarCPF(cpf)) {
+						
+				res = Ler.lerString("\nOque deseja editar:\n[1] Nome [2] CPF [3] Salario");
 				
-				System.out.println("Informações do funcionario:\nNome: "+funcionario.getNome()+"\nCPF: "+funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());		
-				System.out.println();
-				res = Ler.lerInt("\nOque deseja editar:\n[1] Nome [2] CPF [3] Salario");
-				if (res == 1) {
+				if (res.equals("1")) {
 					String nome = Ler.lerString("Digite o novo nome:");
-					funcionario.setNome(nome);
-					System.out.println("Funcionario editado com sucesso!!\n\nfuncionario:\nNome: "+funcionario.getNome()+"\nCPF: "+ funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());
-				}else if(res == 2) {
+					//funcionario.setNome(nome);
+					con.alteraTabela("funcionario","nome",nome,cpf);
+					con.verificarCPF(cpf);
+//					System.out.println("Funcionario editado com sucesso!!\n\nfuncionario:\nNome: "+funcionario.getNome()+"\nCPF: "+ funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());
+				}else if(res.equals("2")) {
 					String cpfn = Ler.lerString("Digite o novo CPF:");
-					funcionario.setCpf(cpfn);
-					System.out.println("Funcionario editado com sucesso!!\n\nfuncionario:\nNome: "+funcionario.getNome()+"\nCPF: "+ funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());
-				}else if(res == 3) {
-					double salario = Ler.lerDouble("Digite o novo Salario:");
-					funcionario.setSalario(salario);
-					System.out.println("Funcionario editado com sucesso!!\n\nfuncionario:\nNome: "+funcionario.getNome()+"\nCPF: "+ funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());
+					con.alteraTabela("funcionario","cpf",cpfn,cpf);
+					con.verificarCPF(cpf);
+
+				}else if(res.equals("3")) {
+					double valor = Ler.lerDouble("Digite o novo Salario:");
+					String salario = Double.toString(valor);
+					con.alteraTabela("funcionario","salario",salario,cpf);
+					con.verificarCPF(cpf);
 				}
 				while(true) {				
 					opcao1 = Ler.lerString("Deseja edita outro funcionario? 1 - sim / 2 - retonar");					
@@ -129,7 +134,7 @@ public class Primaria {
 			}
 		}
 		return null;
-	}	
+	}
 	public static void registraPonto(List<Funcionario>funcionarios) {		 
 		DateTimeFormatter hora = DateTimeFormatter.ofPattern("HH:mm"); 
 		String cpfhr;
@@ -215,18 +220,23 @@ public class Primaria {
 			return salarioAposINSS * 0.275-869.36;
 		}
 	}	
-	public static void listaFuncionario(List<Funcionario>funcionarios) {		
+	public static void listaFuncionario(List<Funcionario>funcionarios,ConexaoBanco con) {		
 		System.out.println("Lista de Funcionários:");
-		    boolean encontrado = false;
-		    for (Funcionario f : funcionarios) {
-		        System.err.println("*******************");
-		    	if (f != null) {	        	
-		            System.out.println(f);		            
-		            encontrado = true;		            
-		        }
-		    }
-		    if (!encontrado) {
-		        System.out.println("Nenhum funcionário cadastrado.");
-		    }
+		con.consultaDados("funcionario");
+		
+//		    boolean encontrado = false;
+//		    
+//		    for (Funcionario f : funcionarios) {
+//		        
+//		    	if (f != null) {
+//		    		System.err.println("*******************");	        	
+//		            System.out.println(f);	
+//		            System.err.println("*******************");	
+//		            encontrado = true;		            
+//		        }
+//		    }
+//		    if (!encontrado) {
+//		        System.out.println("Nenhum funcionário cadastrado.");
+//		    }
 	}
 }
