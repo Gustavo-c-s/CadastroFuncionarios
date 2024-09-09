@@ -47,7 +47,7 @@ public class Primaria {
 					 registraPonto(funcionarios);
 					 break;
 				 case "4":
-					 folhaPagamento(funcionarios);
+					 folhaPagamento(funcionarios,con);
 					 break;
 				 case "5":
 					 listaFuncionario(funcionarios,con);
@@ -100,19 +100,21 @@ public class Primaria {
 				if (res.equals("1")) {
 					String nome = Ler.lerString("Digite o novo nome:");
 					//funcionario.setNome(nome);
-					con.alteraTabela("funcionario","nome",nome,cpf);
+					con.alteraTabela("nome",nome,cpf);
 					con.verificarCPF(cpf);
 //					System.out.println("Funcionario editado com sucesso!!\n\nfuncionario:\nNome: "+funcionario.getNome()+"\nCPF: "+ funcionario.getCpf()+"\nSalario: "+funcionario.getSalario());
 				}else if(res.equals("2")) {
 					String cpfn = Ler.lerString("Digite o novo CPF:");
-					con.alteraTabela("funcionario","cpf",cpfn,cpf);
+					con.alteraTabela("cpf",cpfn,cpf);
 					con.verificarCPF(cpf);
 
 				}else if(res.equals("3")) {
 					double valor = Ler.lerDouble("Digite o novo Salario:");
-					String salario = Double.toString(valor);
-					con.alteraTabela("funcionario","salario",salario,cpf);
+//					String salario = Double.toString(valor);
+					con.alteraSalario(valor,cpf);
 					con.verificarCPF(cpf);
+				}else {
+					System.out.println("Cpf não encontrado.");
 				}
 				while(true) {				
 					opcao1 = Ler.lerString("Deseja edita outro funcionario? 1 - sim / 2 - retonar");					
@@ -166,33 +168,28 @@ public class Primaria {
             }                   		            	
 		}while(res == 1);
 	}
-	public static void folhaPagamento(List<Funcionario> funcionarios) {
+	public static void folhaPagamento(List<Funcionario> funcionarios,ConexaoBanco con) {
 		double totalFolhaPagamento = 0.0;
-		boolean funcionarioCadastrados = false;
 		
+		String cpf = Ler.lerString("Digite o cpf do funcionario: ");
 		System.out.println("Folha de Pagamento: ");
 		System.out.println("-----------------------");
 		
-		for (Funcionario f : funcionarios) {
-			if(f !=null ){
-				double salarioBruto = f.getSalario();
+//		for (Funcionario f : funcionarios) {
+//			if(f !=null ){
+				double salarioBruto = con.pegaValor(cpf);
 				double descontoINSS=calcularINSS(salarioBruto);
 				double salarioAposINSS = salarioBruto - descontoINSS;
 				double descontoIRRF = calcularIRRF(salarioAposINSS);
 				double salarioLiquido = salarioAposINSS - descontoIRRF;
 				System.out.println("**************************");
-				System.out.printf("| Matricula: %s \n| Nome: %s \n| Salário Bruto: R$ %.2f \n| INSS: R$ %.2f \n| IRRF: R$ %.2f \n| Salário Líquido: R$ %.2f%n",
-						f.getCodigo(),f.getNome(), salarioBruto, descontoINSS,descontoIRRF,salarioLiquido);
+				System.out.printf("| Salário Bruto: R$ %.2f \n| INSS: R$ %.2f \n| IRRF: R$ %.2f \n| Salário Líquido: R$ %.2f%n",
+								salarioBruto, descontoINSS,descontoIRRF,salarioLiquido);
 				System.out.println("**************************");
 				totalFolhaPagamento += salarioLiquido;
-				funcionarioCadastrados = true;
-			}
-		}		
-		if(!funcionarioCadastrados) {
-			System.out.println("Nenhum funcionario cadastrado.");
-		}else {
-			System.out.printf("Folha de pagamento total: R$ %.2f%n",totalFolhaPagamento);
-		}	
+				System.out.printf("Folha de pagamento total: R$ %.2f%n",totalFolhaPagamento);
+//				}funcionarioCadastrados = true;
+//		}		
 	}
 	public static double calcularINSS(double salario) {
 		if (salario<= 1320.00) {

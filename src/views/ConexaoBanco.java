@@ -7,10 +7,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.print.attribute.standard.JobImpressions;
+
 public class ConexaoBanco {
         String url = "jdbc:postgresql://localhost:5432/CadastroFuncionario";
         String usuario = "postgres"; // Substitua pelo seu nome de usuário do PostgreSQL
-        String senha = "Senha"; // Substitua pela sua senha    
+        String senha = "senha"; // Substitua pela sua senha    
     
     private Connection conectar()throws SQLException {
         return DriverManager.getConnection(url, usuario, senha);
@@ -63,20 +65,30 @@ public class ConexaoBanco {
     		System.out.println("conectando com a tabela '" + nomeTabela + "'");
     	}
     }
-    public void alteraTabela(String nomeTabela,String coluna,String valor,String cpf) {
-    	String altera ="update "+nomeTabela.toLowerCase() +
-    					" set " + coluna+" = ? where cpf = ?";
+    public void alteraTabela(String coluna,String valor,String cpf) {
+    	String altera ="update funcionario set " + coluna +" = ? where cpf = ? ";
+    	
     	try(Connection conn = conectar();
         	PreparedStatement pstmt = conn.prepareStatement(altera)) {
 			pstmt.setString(1, valor);
 			pstmt.setString(2, cpf);
+			pstmt.executeUpdate();
+			 System.out.println("Alteração realizada com sucesso!");
+		    
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    }
+    public void alteraSalario(double valor,String cpf) {
+    	String altera ="update funcionario set salario = ? where cpf = ? ";
+		try(Connection conn = conectar();
+			PreparedStatement pstmt = conn.prepareStatement(altera)) {
+			pstmt.setDouble(1, valor);
+			pstmt.setString(2, cpf);
+			pstmt.executeUpdate();
 			
-			int linhasAfetadas = pstmt.executeUpdate();
-			 if (linhasAfetadas > 0) {
-		         System.out.println("Alteração realizada com sucesso!");
-		     } else {
-		         System.out.println("Nenhum funcionário encontrado com o CPF especificado.");
-		     }
+		    System.out.println("Alteração realizada com sucesso!");
+
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -125,11 +137,12 @@ public class ConexaoBanco {
     		
     		pstmt.setString(1, cpf);
    			ResultSet resultado = pstmt.executeQuery();
+   			
    			if(resultado.next()) {
    				System.out.println("Nome: " + resultado.getString("nome")+
    								"\nCpf: " + resultado.getString("cpf")+
-   								"\nSalraio: R$"+resultado.getDouble("salario"));
-   			return resultado.getBoolean(1);
+   								"\nSalario: R$"+resultado.getDouble("salario"));
+   			return true;
    			}else {
    				System.out.println("Nenhum funcionário encontrado com o CPF: " + cpf);
    			}
@@ -138,6 +151,30 @@ public class ConexaoBanco {
    			e.printStackTrace();
    		}return false;
     }
+    public double pegaValor(String cpf) {
+    	String valor = "select salario from funcionario where cpf = ? ";
+    	
+    	try (Connection conn = conectar();
+          	PreparedStatement pstmt = conn.prepareStatement(valor)) {
+			pstmt.setString(1,cpf);
+			ResultSet resultado = pstmt.executeQuery();
+			if(resultado.next()) {
+			
+				return resultado.getDouble("salario");	
+			}
+			 
+		} catch (SQLException e) {
+			
+			
+		}
+		return 0;
+		
+    	
+    	
+    }
+    
+    
+    
 }
 //    static void criarTabela(Statement stm) {
 //    	String create ="create table funcionario ( codigo serial primary key,nome varchar(100) not null,cpf varchar(14)not null unique,salario decimal not null)";
