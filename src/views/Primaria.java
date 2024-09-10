@@ -1,6 +1,6 @@
 package views;
 import java.util.Date;
-import java.sql.Statement;
+
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +17,8 @@ public class Primaria {
  		Date relogio = new Date();
  		SimpleDateFormat formatoData = new SimpleDateFormat("dd 'de' MMMM 'de' yyyy, HH:mm", new Locale("pt", "BR"));
  		List<Funcionario> funcionarios = new ArrayList<Funcionario>();
-		String opcao="";
+		List<Cliente>cliente = new ArrayList<Cliente>();
+ 		String opcao="";
 		String dataFor = formatoData.format(relogio);
 		ConexaoBanco con = new ConexaoBanco();
 		while(opcao != "6") {
@@ -31,7 +32,9 @@ public class Primaria {
 					|3 - Registra Ponto.      |
 					|4 - Folha de Pagamento.  |
 					|5 - Lista de Funcionaio. |
-					|6 - Sair                 |
+					|6 - Cadastra cliente.    |
+					|7 - Lista de clientes.   |
+					|0 - Sair                 |
 					|                         |
 					***************************
 					""");
@@ -53,6 +56,12 @@ public class Primaria {
 					 listaFuncionario(funcionarios,con);
 					 break;
 				 case "6":
+					 cadastraCliente(cliente,con);
+					 break;
+				 case "7":
+//					 listadeCliente(cliente,con);
+					 break;
+				 case "0":
 				 System.out.println("ENCERRANDO O PROGRAMA...");
 					 return;
 				 default:
@@ -236,4 +245,29 @@ public class Primaria {
 //		        System.out.println("Nenhum funcionário cadastrado.");
 //		    }
 	}
+	public static void cadastraCliente(List<Cliente>cliente,ConexaoBanco con) {
+		String res="";
+		con.verificaOuCriaTabela("cliente");
+		do {
+			String nome =Ler.lerString("Informe o nome: ");
+			String cpf =Ler.lerString("Informe o cpf: ");
+			String end = Ler.lerString("Informe o endereço: ");
+			String tl =Ler.lerString("Informe um telefone: ");
+			String dt = Ler.lerString("Informe a data de nascimento: ");
+			Cliente novoCliente = new Cliente(nome,cpf,end,dt,tl);
+			cliente.add(novoCliente);
+			con.insertDados(novoCliente);
+			while(true) {
+				res = Ler.lerString("Deseja continuar cadastrando? 1 - sim / 2 - retonar");
+				if (res.equals("2")) {
+					return;
+				}else if (res.equals("1")){
+					break;
+				}else {
+					System.out.println("OPÇÃO INVÁLIDA. TENTE NOVAMENTE.");
+				}
+			}
+		}while(res.equals("1"));
+	}
+
 }

@@ -43,7 +43,16 @@ public class ConexaoBanco {
                     + "nome VARCHAR(100), "
                     + "cpf VARCHAR(14), "
                     + "salario DECIMAL)";
-    	}else {
+    	}if(nomeTabela.equalsIgnoreCase("cliente")) {
+    		criaTabela = "CREATE TABLE cliente ("
+                    + "codigo SERIAL PRIMARY KEY, "
+                    + "nome VARCHAR(100) not null, "
+                    + "cpf VARCHAR(14)not null, "
+                    + "endereco varchar(100) not null,"
+                    + "data_nascimento varchar(10) not null"
+                    + "telefone varchar(14))";
+    	}
+    	else {
     		return;
     	}
     	
@@ -172,7 +181,9 @@ public class ConexaoBanco {
     	
     	
     }
-    
+    public void inserirDados(nomeClasse,) {
+    	
+    }
     
     
 }
