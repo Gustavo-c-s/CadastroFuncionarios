@@ -1,13 +1,15 @@
-package views;
+package classes;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 public abstract class Pessoas {
 	protected String nome;
 	protected String cpf;
 	protected String endereco;
-	protected String dtNascimento;
-	public Pessoas(String nome, String cpf, String endereco, String dtNascimento) {
+	protected LocalDate dtNascimento;
+	
+public Pessoas(String nome, String cpf, String endereco, LocalDate dtNascimento) {
 		super();
 		this.nome = nome;
 		this.cpf = cpf;
@@ -35,10 +37,10 @@ public abstract class Pessoas {
 	public void setEndereco(String endereco) {
 		this.endereco = endereco;
 	}
-	public String getDtNascimento() {
+	public LocalDate getDtNascimento() {
 		return dtNascimento;
 	}
-	public void setDtNascimento(String dtNascimento) {
+	public void setDtNascimento(LocalDate dtNascimento) {
 		this.dtNascimento = dtNascimento;
 	}
 	

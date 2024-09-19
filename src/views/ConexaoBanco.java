@@ -1,165 +1,43 @@
 package views;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.print.attribute.standard.JobImpressions;
 
+import classes.Funcionario;
+
 public class ConexaoBanco {
         String url = "jdbc:postgresql://localhost:5432/CadastroFuncionario";
-        String usuario = "postgres"; // Substitua pelo seu nome de usuário do PostgreSQL
-        String senha = "senha"; // Substitua pela sua senha    
-    
-    private Connection conectar()throws SQLException {
-        return DriverManager.getConnection(url, usuario, senha);
-    }       
-    public boolean tabelaExiste(String nomeTabela) {
-    	String existe = "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = ?)";
-    	
-    	try (Connection con = conectar();
-    		PreparedStatement pstmt = con.prepareStatement(existe)){
-			
-    		pstmt.setString(1, nomeTabela.toLowerCase());
-    		ResultSet resultado = pstmt.executeQuery();
-    		if(resultado.next()) {
-    			return resultado.getBoolean(1);
-    		}
-		} catch (Exception e) {
-			e.printStackTrace();
-			// TODO: handle exception
-		}return false;
-    	
-    }
-    public void criarTabela(String nomeTabela) {
-    	String criaTabela ="";
-    	
-    	if(nomeTabela.equalsIgnoreCase("funcionario")) {
-    		criaTabela = "CREATE TABLE funcionario ("
-                    + "codigo SERIAL PRIMARY KEY, "
-                    + "nome VARCHAR(100), "
-                    + "cpf VARCHAR(14), "
-                    + "salario DECIMAL)";
-    	}if(nomeTabela.equalsIgnoreCase("cliente")) {
-    		criaTabela = "CREATE TABLE cliente ("
-                    + "codigo SERIAL PRIMARY KEY, "
-                    + "nome VARCHAR(100) not null, "
-                    + "cpf VARCHAR(14)not null, "
-                    + "endereco varchar(100) not null,"
-                    + "data_nascimento varchar(10) not null"
-                    + "telefone varchar(14))";
-    	}
-    	else {
-    		return;
-    	}
-    	
-    	try (Connection conn = conectar();
-             Statement stm = conn.createStatement()){
-			
-    		stm.executeUpdate(criaTabela);
-    		System.out.println("Tabela '"+nomeTabela+"' criada com sucesso!");
-		} catch (Exception e) {
-			e.printStackTrace();
-			// TODO: handle exception
-		}
+        String usuario = "postgres"; 
+        String senha = "135790";     
+        Connection con;
+        private Statement statment;
+    public Connection conectar(){
+	System.out.println("Conectando ao bando.");
+	    	
+	    	try {
+	    		con = DriverManager.getConnection(url,usuario,senha);
+	    		if(con!=null) {
+	    			System.out.println("Conectado!");
+	    		}else {
+	    			System.err.println("Não foi possível!");
+	    		}
+	    	}catch(SQLException e) {
+	    		System.err.println("Driver não econtrado!");
+	    		return null;
+	    	}return con;
     }  
-    public void verificaOuCriaTabela(String nomeTabela) {
-    	
-    	if(!tabelaExiste(nomeTabela)) {
-    		criarTabela(nomeTabela);
-    	}else {
-    		System.out.println("conectando com a tabela '" + nomeTabela + "'");
-    	}
-    }
-    public void alteraTabela(String coluna,String valor,String cpf) {
-    	String altera ="update funcionario set " + coluna +" = ? where cpf = ? ";
-    	
-    	try(Connection conn = conectar();
-        	PreparedStatement pstmt = conn.prepareStatement(altera)) {
-			pstmt.setString(1, valor);
-			pstmt.setString(2, cpf);
-			pstmt.executeUpdate();
-			 System.out.println("Alteração realizada com sucesso!");
-		    
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-    }
-    public void alteraSalario(double valor,String cpf) {
-    	String altera ="update funcionario set salario = ? where cpf = ? ";
-		try(Connection conn = conectar();
-			PreparedStatement pstmt = conn.prepareStatement(altera)) {
-			pstmt.setDouble(1, valor);
-			pstmt.setString(2, cpf);
-			pstmt.executeUpdate();
-			
-		    System.out.println("Alteração realizada com sucesso!");
 
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-    }
-    public void insertDados(Funcionario funcionario) {
-    	String insert ="insert into funcionario(nome,cpf,salario) values(?,?,?)";
-    	
-    	try(Connection conn = conectar();
-    		PreparedStatement pstmt = conn.prepareStatement(insert)) {
-    		 pstmt.setString(1, funcionario.getNome());
-             pstmt.setString(2, funcionario.getCpf());
-             pstmt.setDouble(3, funcionario.getSalario());
-
-             // Executando o comando SQL
-             pstmt.executeUpdate();
-             System.out.println("Funcionário inserido com sucesso!");
-			
-		} catch (SQLException e) {
-			// TODO Bloco catch gerado automaticamente
-			e.printStackTrace();
-		}
-    }
-    public void consultaDados(String nomeTabela) {
-    	String select = "select * from "+nomeTabela.toLowerCase();
-    	
-    	try (Connection conn = conectar();
-    	     PreparedStatement pstmt = conn.prepareStatement(select)){
-			
-			ResultSet resultado = pstmt.executeQuery();
-			while ( resultado.next()) {
-				System.out.println("codigo: " + resultado.getInt("codigo")+
-								"\nNome: " + resultado.getString("nome")+
-								"\nCpf: " + resultado.getString("cpf")+
-								"\nSalraio: R$"+resultado.getDouble("salario"));
-			}
-		} catch (SQLException e) {
-			// TODO Bloco catch gerado automaticamente
-			e.printStackTrace();
-		}
-    }  
-    public boolean verificarCPF(String cpf) {
-    	String verifi = "select * from funcionario where cpf = ?";
-    	
-    	try (Connection conn = conectar();
-       	     PreparedStatement pstmt = conn.prepareStatement(verifi)){
-    		
-    		pstmt.setString(1, cpf);
-   			ResultSet resultado = pstmt.executeQuery();
-   			
-   			if(resultado.next()) {
-   				System.out.println("Nome: " + resultado.getString("nome")+
-   								"\nCpf: " + resultado.getString("cpf")+
-   								"\nSalario: R$"+resultado.getDouble("salario"));
-   			return true;
-   			}else {
-   				System.out.println("Nenhum funcionário encontrado com o CPF: " + cpf);
-   			}
-   		} catch (SQLException e) {
-   			// TODO Bloco catch gerado automaticamente
-   			e.printStackTrace();
-   		}return false;
-    }
     public double pegaValor(String cpf) {
     	String valor = "select salario from funcionario where cpf = ? ";
     	
@@ -176,17 +54,177 @@ public class ConexaoBanco {
 			
 			
 		}
-		return 0;
-		
-    	
-    	
+		return 0;    	
     }
-    public void inserirDados(nomeClasse,) {
-    	
+    public String qntasColunas(String nomeTabela){
+    	String tabela = "select * from "+nomeTabela.toLowerCase();
+    	String tabelaNova ="(";	
+    	try (Connection con = conectar();
+    			PreparedStatement pstmt = con.prepareStatement(tabela);
+    			ResultSet resultado = pstmt.executeQuery()){
+    		
+			ResultSetMetaData metaData =resultado.getMetaData();
+			int coluna = metaData.getColumnCount();
+			
+			if(resultado.next()) {
+				  
+				for(int j = 1;j<=coluna;j++) {
+					if(j>1 && j<=coluna) {
+						tabelaNova+="?";
+						if(j>1 && j<coluna) {
+							tabelaNova+=",";
+						}
+					}					
+				}
+				tabelaNova+=")";
+//				System.out.println(tabelaNova);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+    	return tabelaNova;
+    }    
+    public String sqlPronto(String nomeTabela) {
+		String qntsColunas = qntasColunas(nomeTabela);
+		String nomeColunas = addNamenasColunas(nomeTabela);
+		String insert = "insert into " + nomeTabela.toLowerCase()+nomeColunas+" values "+ qntsColunas;
+    	System.out.println(insert);
+		return insert;
     }
-    
-    
-}
+    public String addNamenasColunas(String nomeTabela) {
+    	String tabela = "select * from "+nomeTabela.toLowerCase();
+    	String tabelaNova ="(";	
+    	try (Connection con = conectar();
+    			PreparedStatement pstmt = con.prepareStatement(tabela);
+    			ResultSet resultado = pstmt.executeQuery()){
+    		
+			ResultSetMetaData metaData =resultado.getMetaData();
+			int coluna = metaData.getColumnCount();
+			
+			if(resultado.next()) {
+				  
+				for(int j = 1;j<=coluna;j++) {
+					if(j>1 && j<=coluna) {
+						tabelaNova+=metaData.getColumnName(j);
+						if(j>1 && j<coluna) {
+							tabelaNova+=",";
+						}
+					}					
+				}
+				tabelaNova+=")";
+//				System.out.println(tabelaNova);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
+			e.printStackTrace();
+		}
+    	return tabelaNova;
+    }
+    public void insertTabela(String nomeTabela,List<?>listaObjetos) {
+    	String insert =sqlPronto(nomeTabela);
+    	String qnt = addNamenasColunas(nomeTabela);
+    	try(Connection conn = conectar();
+    		PreparedStatement pstmt = conn.prepareStatement(insert)){
+    		
+    		ResultSet resultado = pstmt.executeQuery();
+    		
+    		
+    		for (Object objeto : listaObjetos) {
+                // Usa reflection para acessar os campos (atributos) da classe
+                Field[] campos = objeto.getClass().getDeclaredFields();
+
+                // Para cada campo, adiciona seu valor à PreparedStatement
+                int index = 1;
+                for (Field campo : campos) {
+                    campo.setAccessible(true);  // Garante acesso aos campos privados
+
+                    Object valorCampo = campo.get(objeto); // Obtém o valor do campo
+                    
+                    // Aqui você pode tratar o tipo do campo conforme necessário
+                    if (valorCampo instanceof String) {
+                        pstmt.setString(index, (String) valorCampo);
+                    } else if (valorCampo instanceof Integer) {
+                        pstmt.setInt(index, (Integer) valorCampo);
+                    } else if (valorCampo instanceof Double) {
+                        pstmt.setDouble(index, (Double) valorCampo);
+                    } else if (valorCampo != null) {
+                        pstmt.setObject(index, valorCampo); // Para outros tipos
+                    } else {
+                        pstmt.setNull(index, java.sql.Types.NULL);
+                    }
+                    index++;
+                }
+
+                // Executa o comando de inserção para o objeto atual
+                pstmt.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }    	
+    }
+    public String addValues(String nomeTabela) {
+    	String insert = "insert into " + addNamenasColunas(nomeTabela)
+;    	
+    	
+    	
+    	
+    	return nomeTabela;
+    }
+	
+	public Connection getCon() {
+		return con;
+	}
+	public void setCon(Connection con) {
+		this.con = con;
+	}
+	public Statement getStatment() {
+		return statment;
+	}
+	public void setStatment(Statement statment) {
+		this.statment = statment;
+	}
+	
+
+
+
+
+} 
+
+
+
+//    public void inserirDados(String nomeTabela ) {
+//    	
+//    	String insertDds = "insert into ? ("+j")values("+j+")";
+//    	
+//    	try (Connection con = conectar();
+//    			PreparedStatement pstmt = con.prepareStatement(insertDds);
+//    			ResultSet resultado = pstmt.executeQuery()){
+//    		
+//    		pstmt.setString(1, nomeTabela);
+//			ResultSetMetaData metaData =resultado.getMetaData();
+//			int coluna = metaData.getColumnCount();
+//			
+//			while(resultado.next()) {
+//				
+//				for (int i = 1;i<=coluna;i++) {
+//					pstmt.setString(i,metaData.getColumnName(i));
+//				}
+//				for(int h = 1; h<=coluna; h++) {
+//					pstmt.setObject(h,nomeTabela.getClass());
+//				}
+//			}
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
+//    
+//    
+//    
+//    }
+        
+
 //    static void criarTabela(Statement stm) {
 //    	String create ="create table funcionario ( codigo serial primary key,nome varchar(100) not null,cpf varchar(14)not null unique,salario decimal not null)";
 //    	
@@ -219,4 +257,37 @@ public class ConexaoBanco {
 //            System.out.println("Driver não encontrado!");
 //            e.printStackTrace();
 //        }
+//    }
+//    public List<String> pegarNomedasColunas(String nomeTabela) {
+//    	List<String> nomeColunas = new ArrayList<>();
+//    	
+//    	// Variável de controle para garantir que o código execute pelo menos uma vez
+//    	boolean hasRows = false;
+//    	try {
+//			String sql ="Select * from "+ nomeTabela.toLowerCase();
+//			PreparedStatement stmt = con.prepareStatement(sql);
+//			ResultSet rs = stmt.executeQuery();
+//			ResultSetMetaData rsmd = rs.getMetaData();  // Obter os metadados do resultado
+//			rs.next();
+//			int qntColunas=rsmd.getColumnCount();
+//			
+//			if(rs.next()) {
+//				hasRows = true;// Marca que há pelo menos uma linha
+//                // Retorna o ponteiro para a primeira linha
+//				rs.beforeFirst();
+//			}
+//			for(int i = 1; i<=qntColunas;i++) {
+//				String nomeColuna = rsmd.getColumnName(i);
+//				nomeColunas.add(nomeColuna);
+//			}
+//			if (!hasRows) {
+//                // Código para quando não há linhas
+//                System.out.println("Tabela está vazia ou não retornou nenhuma linha.");
+//            }
+//				
+//		} catch (Exception e) {
+//			e.printStackTrace();;
+//		}
+//    	
+//    	return nomeColunas;	
 //    }
